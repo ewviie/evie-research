@@ -17,7 +17,7 @@ export const site = {
   url: SITE_URL,
   locale: "en_GB",
   // Contact and profile links (used in the footer, About page and JSON-LD).
-  email: "ewviie@outlook.com",
+  email: "ewviiee@outlook.com",
   github: "https://github.com/ewviie",
   instagram: "https://www.instagram.com/ewviiee/",
   subsentryUrl: "https://subsentrywaitlist.netlify.app/",

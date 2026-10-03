@@ -46,7 +46,7 @@ export default function HomePage() {
     <>
       <JsonLd data={jsonLd} />
       <div className="mx-auto max-w-5xl px-4 sm:px-6">
-        <section className="pb-14 pt-10 sm:pb-20 sm:pt-[4.5rem]">
+        <section className="pb-14 pt-8 sm:pb-20 sm:pt-16">
           <h1 className="max-w-3xl text-4xl font-semibold leading-[1.1] tracking-tight sm:text-6xl">
             {site.tagline}
           </h1>
