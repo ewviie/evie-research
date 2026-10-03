@@ -1,69 +1,94 @@
-import Image from "next/image";
+import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
+import Link from "next/link";
+import { JsonLd } from "@/components/json-ld";
+import { PostCard } from "@/components/post-card";
+import { getAllPosts } from "@/lib/posts";
+import { absoluteUrl, site } from "@/lib/site";
 
-export default function Home() {
+export const metadata: Metadata = {
+  ...pageMetadata({ title: site.title, description: site.description, path: "/" }),
+  title: { absolute: site.title },
+};
+
+export default function HomePage() {
+  const latest = getAllPosts().slice(0, 3);
+
+  // WebSite (with SearchAction pointing at the archive's ?q= search) + Organization.
+  const jsonLd = [
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "@id": `${site.url}/#website`,
+      url: absoluteUrl("/"),
+      name: site.title,
+      description: site.description,
+      inLanguage: "en-GB",
+      publisher: { "@id": `${site.url}/#organization` },
+      potentialAction: {
+        "@type": "SearchAction",
+        target: { "@type": "EntryPoint", urlTemplate: `${site.url}/archive/?q={search_term_string}` },
+        "query-input": "required name=search_term_string",
+      },
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "@id": `${site.url}/#organization`,
+      name: site.name,
+      url: absoluteUrl("/"),
+      logo: `${site.url}/og/site/`,
+      sameAs: [site.github, site.instagram],
+    },
+  ];
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
+    <>
+      <JsonLd data={jsonLd} />
+      <div className="mx-auto max-w-5xl px-4 sm:px-6">
+        <section className="pb-14 pt-10 sm:pb-20 sm:pt-[4.5rem]">
+          <h1 className="max-w-3xl text-4xl font-semibold leading-[1.1] tracking-tight sm:text-6xl">
+            {site.tagline}
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+          <p className="mt-6 max-w-2xl text-lg leading-relaxed text-muted-foreground">
+            Monthly equity and sector research, written with real positions behind it. Each note states the thesis,
+            what would prove it wrong, and what I own — so the reasoning can be checked against the outcome.
           </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+        </section>
+
+        <section aria-labelledby="latest-heading">
+          <div className="flex items-baseline justify-between border-b border-foreground pb-3">
+            <h2 id="latest-heading" className="text-sm font-semibold uppercase tracking-wider">
+              Latest research
+            </h2>
+            <Link href="/archive/" className="text-sm text-primary underline-offset-4 hover:underline">
+              All research →
+            </Link>
+          </div>
+          <div>
+            {latest.map((p) => (
+              <PostCard key={p.slug} post={p} />
+            ))}
+            {latest.length === 0 && <p className="py-8 text-muted-foreground">The first research note is coming soon.</p>}
+          </div>
+        </section>
+
+        <section aria-labelledby="about-site-heading" className="mt-20 max-w-2xl">
+          <h2 id="about-site-heading" className="text-sm font-semibold uppercase tracking-wider">
+            About this site
+          </h2>
+          <p className="mt-4 leading-relaxed text-muted-foreground">
+            This is a public record of my investment research: a multi-year body of written stock and sector
+            analyses, published as I write them and never edited to hide a wrong call. Updates are dated, and every
+            note discloses my position.
+          </p>
+          <p className="mt-3">
+            <Link href="/about/" className="text-primary underline underline-offset-4">
+              About me and this project
+            </Link>
+          </p>
+        </section>
+      </div>
+    </>
   );
 }
